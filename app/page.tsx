@@ -59,7 +59,6 @@ export default function Home() {
                 Calculadora de Juros Compostos
               </h1>
               <p className="text-slate-300 mt-1 text-sm md:text-base">
-                Simule seus investimentos e visualize a evolução do patrimônio
               </p>
             </div>
             <button
