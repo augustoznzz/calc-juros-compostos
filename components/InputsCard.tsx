@@ -2,6 +2,7 @@
 
 import { useCalculatorStore } from "@/lib/store";
 import { monthlyToAnnual, annualToMonthly } from "@/lib/finance";
+import { formatNumberWithSeparators, parseNumberWithSeparators } from "@/lib/format";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -42,7 +43,7 @@ export default function InputsCard() {
   return (
     <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6 animate-fade-in">
       <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">
-        Dados de Entrada
+        Dados
       </h2>
 
       <div className="space-y-4 md:space-y-6">
@@ -56,11 +57,13 @@ export default function InputsCard() {
           </label>
           <input
             id="initial-investment"
-            type="number"
-            min="0"
-            step="100"
-            value={initialInvestment}
-            onChange={(e) => setInitialInvestment(Number(e.target.value))}
+            type="text"
+            value={formatNumberWithSeparators(initialInvestment)}
+            onChange={(e) => {
+              const parsedValue = parseNumberWithSeparators(e.target.value);
+              setInitialInvestment(parsedValue || 0);
+            }}
+            placeholder="0"
             className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
             aria-label="Investimento inicial em reais"
           />
@@ -77,11 +80,13 @@ export default function InputsCard() {
           <div className="flex gap-2">
             <input
               id="contribution"
-              type="number"
-              min="0"
-              step="50"
-              value={contribution}
-              onChange={(e) => setContribution(Number(e.target.value))}
+              type="text"
+              value={formatNumberWithSeparators(contribution)}
+              onChange={(e) => {
+                const parsedValue = parseNumberWithSeparators(e.target.value);
+                setContribution(parsedValue || 0);
+              }}
+              placeholder="0"
               className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
               aria-label="Valor do aporte recorrente"
             />
@@ -102,10 +107,10 @@ export default function InputsCard() {
           </div>
         </div>
 
-        {/* Interest Rate, Period and Capitalization in one row */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        {/* Interest Rate and Period in one row */}
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Interest Rate */}
-          <div className="md:col-span-4">
+          <div className="flex-1">
             <label
               htmlFor="interest-rate"
               className="block text-sm font-medium text-slate-200 mb-2"
@@ -120,7 +125,7 @@ export default function InputsCard() {
                 step="0.01"
                 value={interestRate}
                 onChange={(e) => setInterestRate(Number(e.target.value))}
-                className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
+                className="w-28 sm:w-32 md:flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                 aria-label="Taxa de juros"
               />
               <select
@@ -142,7 +147,7 @@ export default function InputsCard() {
           </div>
 
           {/* Period */}
-          <div className="md:col-span-3">
+          <div className="flex-1">
             <label
               htmlFor="period"
               className="block text-sm font-medium text-slate-200 mb-2"
@@ -156,7 +161,7 @@ export default function InputsCard() {
                 min="1"
                 value={period}
                 onChange={(e) => setPeriod(Number(e.target.value))}
-                className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
+                className="w-24 sm:w-28 md:flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                 aria-label="Duração do período"
               />
               <select
@@ -172,28 +177,28 @@ export default function InputsCard() {
               </select>
             </div>
           </div>
+        </div>
 
-          {/* Capitalization */}
-          <div className="md:col-span-5">
-            <label
-              htmlFor="capitalization"
-              className="block text-sm font-medium text-slate-200 mb-2"
-            >
-              Capitalização
-            </label>
-            <select
-              id="capitalization"
-              value={capitalization}
-              onChange={(e) =>
-                setCapitalization(e.target.value as "monthly" | "yearly")
-              }
-              className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
-              aria-label="Frequência de capitalização"
-            >
-              <option value="monthly">Mensal</option>
-              <option value="yearly">Anual</option>
-            </select>
-          </div>
+        {/* Capitalization */}
+        <div>
+          <label
+            htmlFor="capitalization"
+            className="block text-sm font-medium text-slate-200 mb-2"
+          >
+            Capitalização
+          </label>
+          <select
+            id="capitalization"
+            value={capitalization}
+            onChange={(e) =>
+              setCapitalization(e.target.value as "monthly" | "yearly")
+            }
+            className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
+            aria-label="Frequência de capitalização"
+          >
+            <option value="monthly">Mensal</option>
+            <option value="yearly">Anual</option>
+          </select>
         </div>
 
         {/* Advanced Options Toggle */}
@@ -272,16 +277,13 @@ export default function InputsCard() {
                 </label>
                 <input
                   id="target-value"
-                  type="number"
-                  min="0"
-                  step="1000"
-                  value={targetValue || ""}
-                  onChange={(e) =>
-                    setTargetValue(
-                      e.target.value ? Number(e.target.value) : null
-                    )
-                  }
-                  placeholder="Ex: 100000"
+                  type="text"
+                  value={formatNumberWithSeparators(targetValue)}
+                  onChange={(e) => {
+                    const parsedValue = parseNumberWithSeparators(e.target.value);
+                    setTargetValue(parsedValue);
+                  }}
+                  placeholder="Ex: 100.000"
                   className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                   aria-label="Meta de valor futuro"
                 />

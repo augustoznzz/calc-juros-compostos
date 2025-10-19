@@ -96,3 +96,52 @@ export function parsePercent(value: string): number {
   return parseFloat(cleaned) || 0;
 }
 
+/**
+ * Format number with thousand separators (dots) and optional decimals
+ */
+export function formatNumberWithSeparators(value: number | null, decimals: number = 0): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return "";
+  }
+  
+  return new Intl.NumberFormat("pt-BR", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(value);
+}
+
+/**
+ * Parse number string with thousand separators to number
+ */
+export function parseNumberWithSeparators(value: string): number | null {
+  if (!value || value.trim() === "") {
+    return null;
+  }
+  
+  // Remove all non-digit characters except dots and commas
+  const cleaned = value.replace(/[^\d.,]/g, "");
+  
+  // Handle Brazilian number format (dots as thousand separators, comma as decimal)
+  if (cleaned.includes(",")) {
+    // Has decimal part
+    const parts = cleaned.split(",");
+    if (parts.length === 2) {
+      const integerPart = parts[0].replace(/\./g, "");
+      const decimalPart = parts[1];
+      const number = parseFloat(integerPart + "." + decimalPart);
+      return isNaN(number) ? null : number;
+    }
+  } else if (cleaned.includes(".")) {
+    // Only thousand separators, no decimal
+    const cleanedNumber = cleaned.replace(/\./g, "");
+    const number = parseFloat(cleanedNumber);
+    return isNaN(number) ? null : number;
+  } else {
+    // Simple integer
+    const number = parseFloat(cleaned);
+    return isNaN(number) ? null : number;
+  }
+  
+  return null;
+}
+
