@@ -61,11 +61,11 @@ export default function EvolutionTable() {
 
   if (!results || !results.periods || results.periods.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-white mb-4">
           Tabela de Evolução
         </h2>
-        <p className="text-gray-500 text-center py-8">
+        <p className="text-slate-400 text-center py-8">
           Configure os parâmetros para ver a tabela
         </p>
       </div>
@@ -73,16 +73,16 @@ export default function EvolutionTable() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-800">Tabela de Evolução</h2>
+    <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-4">
+        <h2 className="text-lg md:text-xl font-bold text-white">Tabela de Evolução</h2>
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
+          className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 text-sm"
           aria-label="Exportar para CSV"
         >
           <Download className="w-4 h-4" />
-          Exportar CSV
+          <span className="hidden sm:inline">Exportar CSV</span>
         </button>
       </div>
 
@@ -90,20 +90,20 @@ export default function EvolutionTable() {
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+            <tr className="bg-slate-600 border-b border-slate-500">
+              <th className="px-3 py-2 md:px-4 md:py-3 text-left text-xs md:text-sm font-semibold text-slate-200">
                 Período
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+              <th className="px-3 py-2 md:px-4 md:py-3 text-right text-xs md:text-sm font-semibold text-slate-200">
                 Saldo Inicial
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+              <th className="px-3 py-2 md:px-4 md:py-3 text-right text-xs md:text-sm font-semibold text-slate-200">
                 Aporte
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+              <th className="px-3 py-2 md:px-4 md:py-3 text-right text-xs md:text-sm font-semibold text-slate-200">
                 Juros
               </th>
-              <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">
+              <th className="px-3 py-2 md:px-4 md:py-3 text-right text-xs md:text-sm font-semibold text-slate-200">
                 Saldo Final
               </th>
             </tr>
@@ -112,23 +112,23 @@ export default function EvolutionTable() {
             {paginatedData.map((period, index) => (
               <tr
                 key={period.period}
-                className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-25"
+                className={`border-b border-slate-600 hover:bg-slate-600 transition-colors ${
+                  index % 2 === 0 ? "bg-slate-700" : "bg-slate-800"
                 }`}
               >
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-white">
                   {formatPeriodLabel(period.period, capitalization)}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
                   {formatCurrency(period.initialBalance)}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-600 text-right">
+                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
                   {formatCurrency(period.contribution)}
                 </td>
-                <td className="px-4 py-3 text-sm text-green-600 text-right font-medium">
+                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-green-400 text-right font-medium">
                   {formatCurrency(period.interest)}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-900 text-right font-semibold">
+                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-white text-right font-semibold">
                   {formatCurrency(period.finalBalance)}
                 </td>
               </tr>
@@ -139,28 +139,28 @@ export default function EvolutionTable() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-4 md:mt-6 pt-4 border-t border-slate-600 gap-4">
+          <p className="text-sm text-slate-300">
             Página {currentPage} de {totalPages}
           </p>
           <div className="flex gap-2">
             <button
               onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
+              className="p-2 rounded-lg border border-slate-500 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
               aria-label="Página anterior"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 text-slate-300" />
             </button>
             <button
               onClick={() =>
                 setCurrentPage((prev) => Math.min(totalPages, prev + 1))
               }
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
+              className="p-2 rounded-lg border border-slate-500 hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
               aria-label="Próxima página"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 text-slate-300" />
             </button>
           </div>
         </div>

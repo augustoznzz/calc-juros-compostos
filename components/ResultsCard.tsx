@@ -16,9 +16,9 @@ export default function ResultsCard() {
 
   if (!results) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Resultados</h2>
-        <p className="text-gray-500 text-center py-8">
+      <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6 animate-fade-in">
+        <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Resultados</h2>
+        <p className="text-slate-400 text-center py-8">
           Configure os parâmetros para ver os resultados
         </p>
       </div>
@@ -27,48 +27,48 @@ export default function ResultsCard() {
 
   const kpis = [
     {
-      label: "Valor Futuro (Nominal)",
+      label: "Valor Futuro",
       value: formatCurrency(results.futureValueNominal),
       icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
+      color: "text-green-400",
+      bgColor: "bg-green-900/30",
     },
     {
-      label: "Valor Futuro (Real)",
+      label: "Valor Futuro",
       value: formatCurrency(results.futureValueReal),
       icon: TrendingUp,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
+      color: "text-blue-400",
+      bgColor: "bg-blue-900/30",
       subtitle: "Descontada inflação",
     },
     {
       label: "Total Investido",
       value: formatCurrency(results.totalInvested),
       icon: PiggyBank,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-purple-400",
+      bgColor: "bg-purple-900/30",
     },
     {
       label: "Juros Totais",
       value: formatCurrency(results.totalInterest),
       icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
+      color: "text-orange-400",
+      bgColor: "bg-orange-900/30",
     },
     {
-      label: "Rentabilidade Líquida",
+      label: "Rentabilidade",
       value: formatPercent(results.netReturn),
       icon: Target,
-      color: "text-indigo-600",
-      bgColor: "bg-indigo-50",
+      color: "text-indigo-400",
+      bgColor: "bg-indigo-900/30",
     },
   ];
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 animate-fade-in">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Resultados</h2>
+    <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6 animate-fade-in">
+      <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Resultados</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4">
         {kpis.map((kpi, index) => {
           const Icon = kpi.icon;
           return (
@@ -81,18 +81,18 @@ export default function ResultsCard() {
             >
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-600">
+                  <p className="text-sm font-medium text-slate-300">
                     {kpi.label}
                   </p>
                   {kpi.subtitle && (
-                    <p className="text-xs text-gray-500">{kpi.subtitle}</p>
+                    <p className="text-xs text-slate-400">{kpi.subtitle}</p>
                   )}
                 </div>
                 <div className={`${kpi.bgColor} rounded-lg p-2`}>
-                  <Icon className={`w-5 h-5 ${kpi.color}`} />
+                  <Icon className={`w-4 h-4 ${kpi.color}`} />
                 </div>
               </div>
-              <p className={`text-2xl font-bold ${kpi.color}`}>{kpi.value}</p>
+              <p className={`text-lg md:text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
             </motion.div>
           );
         })}
@@ -103,22 +103,22 @@ export default function ResultsCard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: kpis.length * 0.1 }}
-            className="bg-emerald-50 rounded-xl p-4 transition-transform hover:scale-105"
+            className="bg-emerald-900/30 rounded-xl p-4 transition-transform hover:scale-105"
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-slate-300">
                   Tempo para Meta
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-400">
                   Com os aportes atuais
                 </p>
               </div>
-              <div className="bg-emerald-50 rounded-lg p-2">
-                <Calendar className="w-5 h-5 text-emerald-600" />
+              <div className="bg-emerald-900/30 rounded-lg p-2">
+                <Calendar className="w-4 h-4 text-emerald-400" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-emerald-600">
+            <p className="text-lg md:text-xl font-bold text-emerald-400">
               {formatDuration(results.timeToGoal.months)}
             </p>
           </motion.div>

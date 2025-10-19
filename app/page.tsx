@@ -6,7 +6,7 @@ import { useCalculatorStore } from "@/lib/store";
 import InputsCard from "@/components/InputsCard";
 import ResultsCard from "@/components/ResultsCard";
 import EvolutionTable from "@/components/EvolutionTable";
-import { RefreshCw, Github } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 
 // Dynamically import charts to avoid SSR issues
 const GrowthChart = dynamic(() => import("@/components/GrowthChart"), {
@@ -49,27 +49,27 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50">
+    <main className="min-h-screen bg-slate-800">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-slate-700 shadow-lg border-b border-slate-600">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl md:text-3xl font-bold text-white">
                 Calculadora de Juros Compostos
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-slate-300 mt-1 text-sm md:text-base">
                 Simule seus investimentos e visualize a evolução do patrimônio
               </p>
             </div>
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary-500"
+              className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500"
               aria-label="Reiniciar calculadora"
               title="Alt+R"
             >
               <RefreshCw className="w-4 h-4" />
-              Reiniciar
+              <span className="hidden sm:inline">Reiniciar</span>
             </button>
           </div>
         </div>
@@ -79,11 +79,11 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-8">
           {/* Inputs and Results Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div className="xl:col-span-5">
               <InputsCard />
             </div>
-            <div className="lg:col-span-1">
+            <div className="xl:col-span-7">
               <ResultsCard />
             </div>
           </div>
@@ -98,34 +98,6 @@ export default function Home() {
           <EvolutionTable />
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-center md:text-left">
-              <p className="text-sm text-gray-600">
-                <strong>Aviso:</strong> Esta calculadora tem caráter
-                educacional. Os resultados são estimativas e não constituem
-                recomendação de investimento.
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Versão 1.0.0 • Next.js 14 + TypeScript + Tailwind CSS
-              </p>
-            </div>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-              aria-label="Ver repositório no GitHub"
-            >
-              <Github className="w-5 h-5" />
-              <span className="text-sm">GitHub</span>
-            </a>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

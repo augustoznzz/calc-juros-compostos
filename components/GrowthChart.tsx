@@ -47,11 +47,11 @@ export default function GrowthChart() {
 
   if (!results || chartData.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-white mb-4">
           Evolução do Patrimônio
         </h2>
-        <div className="h-80 flex items-center justify-center text-gray-500">
+        <div className="h-80 flex items-center justify-center text-slate-400">
           Configure os parâmetros para ver o gráfico
         </div>
       </div>
@@ -70,14 +70,14 @@ export default function GrowthChart() {
   }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-          <p className="font-semibold text-gray-800 mb-2">
+        <div className="bg-slate-600 border border-slate-500 rounded-lg shadow-lg p-3">
+          <p className="font-semibold text-white mb-2">
             {payload[0].payload.periodLabel}
           </p>
-          <p className="text-sm text-blue-600">
+          <p className="text-sm text-blue-400">
             Valor Futuro: {formatCurrency(payload[1]?.value || 0)}
           </p>
-          <p className="text-sm text-purple-600">
+          <p className="text-sm text-purple-400">
             Total Investido: {formatCurrency(payload[0]?.value || 0)}
           </p>
         </div>
@@ -87,29 +87,29 @@ export default function GrowthChart() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">
+    <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+      <h2 className="text-lg md:text-xl font-bold text-white mb-4">
         Evolução do Patrimônio
       </h2>
       <ResponsiveContainer width="100%" height={400}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
           <XAxis
             dataKey="periodLabel"
-            stroke="#6b7280"
+            stroke="#cbd5e1"
             style={{ fontSize: "12px" }}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke="#cbd5e1"
             style={{ fontSize: "12px" }}
             tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
           />
           <Tooltip content={<CustomTooltip />} />
-          <Legend wrapperStyle={{ fontSize: "14px" }} />
+          <Legend wrapperStyle={{ fontSize: "14px", color: "#cbd5e1" }} />
           <Line
             type="monotone"
             dataKey="totalInvested"
-            stroke="#9333ea"
+            stroke="#a855f7"
             strokeWidth={2}
             name="Total Investido"
             dot={false}
@@ -117,7 +117,7 @@ export default function GrowthChart() {
           <Line
             type="monotone"
             dataKey="futureValue"
-            stroke="#3b82f6"
+            stroke="#60a5fa"
             strokeWidth={3}
             name="Valor Futuro"
             dot={false}

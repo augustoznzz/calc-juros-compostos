@@ -17,7 +17,7 @@ import {
 import { useCalculatorStore } from "@/lib/store";
 import { formatCurrency, formatPeriodLabel } from "@/lib/format";
 
-const COLORS = ["#9333ea", "#3b82f6", "#10b981", "#f59e0b"];
+const COLORS = ["#a855f7", "#60a5fa", "#34d399", "#fbbf24"];
 
 export default function BreakdownCharts() {
   const { results, capitalization } = useCalculatorStore();
@@ -94,9 +94,9 @@ export default function BreakdownCharts() {
         100
       ).toFixed(1);
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-          <p className="font-semibold text-gray-800">{data.name}</p>
-          <p className="text-sm text-gray-600">
+        <div className="bg-slate-600 border border-slate-500 rounded-lg shadow-lg p-3">
+          <p className="font-semibold text-white">{data.name}</p>
+          <p className="text-sm text-slate-300">
             {formatCurrency(data.value)} ({percentage}%)
           </p>
         </div>
@@ -117,11 +117,11 @@ export default function BreakdownCharts() {
   }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-          <p className="font-semibold text-gray-800 mb-1">
+        <div className="bg-slate-600 border border-slate-500 rounded-lg shadow-lg p-3">
+          <p className="font-semibold text-white mb-1">
             {payload[0].payload.periodLabel}
           </p>
-          <p className="text-sm text-blue-600">
+          <p className="text-sm text-blue-400">
             Juros: {formatCurrency(payload[0].value)}
           </p>
         </div>
@@ -131,10 +131,10 @@ export default function BreakdownCharts() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
       {/* Composition Pie Chart */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-white mb-4">
           Composição Final
         </h2>
         <ResponsiveContainer width="100%" height={350}>
@@ -160,31 +160,31 @@ export default function BreakdownCharts() {
               ))}
             </Pie>
             <Tooltip content={<CustomPieTooltip />} />
-            <Legend wrapperStyle={{ fontSize: "14px" }} />
+            <Legend wrapperStyle={{ fontSize: "14px", color: "#cbd5e1" }} />
           </PieChart>
         </ResponsiveContainer>
       </div>
 
       {/* Interest by Period Bar Chart */}
-      <div className="bg-white rounded-2xl shadow-lg p-6">
-        <h2 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
+        <h2 className="text-lg md:text-xl font-bold text-white mb-4">
           Juros por Período
         </h2>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={interestByPeriodData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis
               dataKey="periodLabel"
-              stroke="#6b7280"
+              stroke="#cbd5e1"
               style={{ fontSize: "11px" }}
             />
             <YAxis
-              stroke="#6b7280"
+              stroke="#cbd5e1"
               style={{ fontSize: "11px" }}
               tickFormatter={(value) => `R$ ${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomBarTooltip />} />
-            <Bar dataKey="interest" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="interest" fill="#60a5fa" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
