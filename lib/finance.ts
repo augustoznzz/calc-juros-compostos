@@ -125,7 +125,7 @@ function getTotalPeriods(
   periodUnit: "months" | "years",
   capitalization: CapitalizationFrequency
 ): number {
-  let months = periodUnit === "months" ? period : period * 12;
+  const months = periodUnit === "months" ? period : period * 12;
 
   if (capitalization === "monthly") {
     return months;
@@ -235,7 +235,6 @@ export function calculateTimeToGoal(
     contributionFrequency,
     interestRate,
     interestBase,
-    capitalization,
     adminFeeRate,
   } = inputs;
 

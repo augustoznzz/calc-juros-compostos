@@ -78,7 +78,15 @@ export default function BreakdownCharts() {
     );
   }
 
-  const CustomPieTooltip = ({ active, payload }: any) => {
+  const CustomPieTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      payload: { name: string; value: number };
+    }>;
+  }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const percentage = (
@@ -97,7 +105,16 @@ export default function BreakdownCharts() {
     return null;
   };
 
-  const CustomBarTooltip = ({ active, payload }: any) => {
+  const CustomBarTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      value: number;
+      payload: { periodLabel: string };
+    }>;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">

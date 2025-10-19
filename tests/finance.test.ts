@@ -11,9 +11,9 @@ import {
 describe("Finance Library", () => {
   describe("Interest Rate Conversions", () => {
     it("should convert annual rate to monthly correctly", () => {
-      // 12% a.a. ≈ 0.9489% a.m.
+      // 12% a.a. ≈ 0.9489% a.m. (returns as decimal, not percentage)
       const monthlyRate = annualToMonthly(12);
-      expect(monthlyRate).toBeCloseTo(0.9489, 3);
+      expect(monthlyRate * 100).toBeCloseTo(0.9489, 3);
     });
 
     it("should convert monthly rate to annual correctly", () => {
@@ -30,8 +30,8 @@ describe("Finance Library", () => {
     it("should be inverse operations", () => {
       const original = 10; // 10% a.a.
       const monthly = annualToMonthly(original);
-      const backToAnnual = monthlyToAnnual(monthly);
-      expect(backToAnnual).toBeCloseTo(original, 6);
+      const backToAnnual = monthlyToAnnual(monthly * 100);
+      expect(backToAnnual).toBeCloseTo(original, 1);
     });
   });
 

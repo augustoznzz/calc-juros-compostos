@@ -58,7 +58,16 @@ export default function GrowthChart() {
     );
   }
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      value: number;
+      payload: { periodLabel: string };
+    }>;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-3">
