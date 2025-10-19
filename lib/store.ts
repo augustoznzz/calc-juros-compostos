@@ -10,6 +10,7 @@ import {
   type InterestBase,
   type CapitalizationFrequency,
   type ContributionFrequency,
+  type VariableContribution,
 } from "./finance";
 
 interface CalculatorState {
@@ -23,8 +24,8 @@ interface CalculatorState {
   periodUnit: "months" | "years";
   capitalization: CapitalizationFrequency;
   inflationRate: number;
-  adminFeeRate: number;
   targetValue: number | null;
+  variableContributions: VariableContribution[];
 
   // Advanced options toggle
   showAdvanced: boolean;
@@ -42,9 +43,11 @@ interface CalculatorState {
   setPeriodUnit: (value: "months" | "years") => void;
   setCapitalization: (value: CapitalizationFrequency) => void;
   setInflationRate: (value: number) => void;
-  setAdminFeeRate: (value: number) => void;
   setTargetValue: (value: number | null) => void;
   setShowAdvanced: (value: boolean) => void;
+  addVariableContribution: (contribution: Omit<VariableContribution, "id">) => void;
+  removeVariableContribution: (id: string) => void;
+  updateVariableContribution: (id: string, contribution: Partial<Omit<VariableContribution, "id">>) => void;
   calculate: () => void;
   reset: () => void;
 }
@@ -59,9 +62,9 @@ const defaultState = {
   period: 12,
   periodUnit: "months" as "months" | "years",
   capitalization: "monthly" as CapitalizationFrequency,
-  inflationRate: 4,
-  adminFeeRate: 0,
+  inflationRate: 0,
   targetValue: null,
+  variableContributions: [] as VariableContribution[],
   showAdvanced: false,
   results: null,
 };
@@ -116,11 +119,6 @@ export const useCalculatorStore = create<CalculatorState>()(
         get().calculate();
       },
 
-      setAdminFeeRate: (value) => {
-        set({ adminFeeRate: value });
-        get().calculate();
-      },
-
       setTargetValue: (value) => {
         set({ targetValue: value });
         get().calculate();
@@ -128,6 +126,30 @@ export const useCalculatorStore = create<CalculatorState>()(
 
       setShowAdvanced: (value) => {
         set({ showAdvanced: value });
+      },
+
+      addVariableContribution: (contribution) => {
+        const id = Date.now().toString() + Math.random().toString(36).substring(2, 9);
+        set((state) => ({
+          variableContributions: [...state.variableContributions, { ...contribution, id }],
+        }));
+        get().calculate();
+      },
+
+      removeVariableContribution: (id) => {
+        set((state) => ({
+          variableContributions: state.variableContributions.filter((c) => c.id !== id),
+        }));
+        get().calculate();
+      },
+
+      updateVariableContribution: (id, updates) => {
+        set((state) => ({
+          variableContributions: state.variableContributions.map((c) =>
+            c.id === id ? { ...c, ...updates } : c
+          ),
+        }));
+        get().calculate();
       },
 
       calculate: () => {
@@ -142,7 +164,8 @@ export const useCalculatorStore = create<CalculatorState>()(
           periodUnit: state.periodUnit,
           capitalization: state.capitalization,
           inflationRate: state.inflationRate,
-          adminFeeRate: state.adminFeeRate,
+          adminFeeRate: 0,
+          variableContributions: state.variableContributions,
         };
 
         const results = calculateCompoundInterest(inputs);
@@ -172,8 +195,8 @@ export const useCalculatorStore = create<CalculatorState>()(
         periodUnit: state.periodUnit,
         capitalization: state.capitalization,
         inflationRate: state.inflationRate,
-        adminFeeRate: state.adminFeeRate,
         targetValue: state.targetValue,
+        variableContributions: state.variableContributions,
         showAdvanced: state.showAdvanced,
       }),
     }

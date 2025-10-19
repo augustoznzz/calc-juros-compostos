@@ -7,6 +7,14 @@ export type InterestBase = "monthly" | "yearly";
 export type CapitalizationFrequency = "monthly" | "yearly";
 export type ContributionFrequency = "monthly" | "yearly" | "none";
 
+export interface VariableContribution {
+  id: string;
+  amount: number;
+  startPeriod: number;
+  endPeriod: number;
+  periodType: "months" | "years";
+}
+
 export interface CalculationInputs {
   initialInvestment: number;
   contribution: number;
@@ -19,6 +27,7 @@ export interface CalculationInputs {
   inflationRate: number; // annual
   adminFeeRate: number; // annual
   targetValue?: number; // optional goal
+  variableContributions?: VariableContribution[];
 }
 
 export interface PeriodData {
@@ -36,6 +45,7 @@ export interface CalculationResults {
   totalInvested: number;
   totalInterest: number;
   netReturn: number;
+  lastMonthInterest: number;
   periods: PeriodData[];
   timeToGoal?: {
     months: number;
@@ -135,6 +145,47 @@ function getTotalPeriods(
 }
 
 /**
+ * Get variable contribution for a specific period
+ */
+function getVariableContribution(
+  periodNumber: number,
+  capitalization: CapitalizationFrequency,
+  variableContributions?: VariableContribution[]
+): number {
+  if (!variableContributions || variableContributions.length === 0) {
+    return 0;
+  }
+
+  let totalContribution = 0;
+
+  for (const vc of variableContributions) {
+    // Convert period to months for comparison
+    const periodInMonths = capitalization === "monthly" ? periodNumber : periodNumber * 12;
+    const startInMonths = vc.periodType === "months" ? vc.startPeriod : vc.startPeriod * 12;
+    const endInMonths = vc.periodType === "months" ? vc.endPeriod : vc.endPeriod * 12;
+
+    // Check if current period is within range
+    if (periodInMonths >= startInMonths && periodInMonths <= endInMonths) {
+      // Convert contribution amount to match capitalization frequency
+      // vc.periodType is the frequency of the contribution amount
+      // capitalization is the calculation frequency
+      if (vc.periodType === "months" && capitalization === "yearly") {
+        // Monthly contribution but yearly capitalization
+        totalContribution += vc.amount * 12;
+      } else if (vc.periodType === "years" && capitalization === "monthly") {
+        // Yearly contribution but monthly capitalization
+        totalContribution += vc.amount / 12;
+      } else {
+        // Both match
+        totalContribution += vc.amount;
+      }
+    }
+  }
+
+  return totalContribution;
+}
+
+/**
  * Calculate compound interest with all features
  */
 export function calculateCompoundInterest(
@@ -151,6 +202,7 @@ export function calculateCompoundInterest(
     capitalization,
     inflationRate,
     adminFeeRate,
+    variableContributions,
   } = inputs;
 
   // Get effective interest rate per period
@@ -178,7 +230,12 @@ export function calculateCompoundInterest(
 
   for (let i = 1; i <= totalPeriods; i++) {
     const initialBalance = balance;
-    const periodContribution = contributionPerPeriod;
+    
+    // Get variable contribution for this period
+    const variableContribution = getVariableContribution(i, capitalization, variableContributions);
+    
+    // Total contribution for this period
+    const periodContribution = contributionPerPeriod + variableContribution;
     
     // Add contribution at the end of period
     balance += periodContribution;
@@ -209,6 +266,9 @@ export function calculateCompoundInterest(
 
   const totalInterest = futureValueNominal - totalInvested;
   const netReturn = totalInvested > 0 ? (totalInterest / totalInvested) * 100 : 0;
+  
+  // Get last month's interest (last period's interest)
+  const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;
 
   const results: CalculationResults = {
     futureValueNominal,
@@ -216,6 +276,7 @@ export function calculateCompoundInterest(
     totalInvested,
     totalInterest,
     netReturn,
+    lastMonthInterest,
     periods,
   };
 

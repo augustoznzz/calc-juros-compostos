@@ -56,6 +56,13 @@ export default function ResultsCard() {
       bgColor: "bg-orange-900/30",
     },
     {
+      label: "Juros do Último Mês",
+      value: formatCurrency(results.lastMonthInterest),
+      icon: TrendingUp,
+      color: "text-cyan-400",
+      bgColor: "bg-cyan-900/30",
+    },
+    {
       label: "Rentabilidade",
       value: formatPercent(results.netReturn),
       icon: Target,
@@ -66,7 +73,7 @@ export default function ResultsCard() {
 
   // Separate KPIs into two rows
   const firstRowKpis = kpis.slice(0, 3); // Valor Futuro, Valor Futuro Descontada inflação, Total Investido
-  const secondRowKpis = kpis.slice(3); // Juros Totais, Rentabilidade
+  const secondRowKpis = kpis.slice(3); // Juros Totais, Juros do Último Mês, Rentabilidade
 
   return (
     <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6 animate-fade-in min-h-[400px] flex flex-col">
@@ -77,6 +84,7 @@ export default function ResultsCard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
           {firstRowKpis.map((kpi, index) => {
             const Icon = kpi.icon;
+            const inflationDiscount = results.futureValueNominal - results.futureValueReal;
             return (
               <motion.div
                 key={kpi.label}
@@ -98,16 +106,23 @@ export default function ResultsCard() {
                     <Icon className={`w-5 h-5 md:w-6 md:h-6 ${kpi.color}`} />
                   </div>
                 </div>
-                <p className={`text-xl font-bold ${kpi.color} break-words`}>
-                  {kpi.value}
-                </p>
+                <div>
+                  <p className={`text-xl font-bold ${kpi.color} break-words`}>
+                    {kpi.value}
+                  </p>
+                  {index === 1 && (
+                    <p className="text-red-500 mt-1" style={{ fontSize: '14px' }}>
+                      - {formatCurrency(inflationDiscount)}
+                    </p>
+                  )}
+                </div>
               </motion.div>
             );
           })}
         </div>
 
-        {/* Second Row: Juros Totais, Rentabilidade */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Second Row: Juros Totais, Juros do Último Mês, Rentabilidade */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {secondRowKpis.map((kpi, index) => {
             const Icon = kpi.icon;
             return (

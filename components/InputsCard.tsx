@@ -6,6 +6,7 @@ import { monthlyToAnnual, annualToMonthly } from "@/lib/finance";
 import { formatNumberWithSeparators, parseNumberWithSeparators, formatPercentage, parsePercentage } from "@/lib/format";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import VariableContributions from "./VariableContributions";
 
 export default function InputsCard() {
   const {
@@ -18,7 +19,6 @@ export default function InputsCard() {
     periodUnit,
     capitalization,
     inflationRate,
-    adminFeeRate,
     targetValue,
     showAdvanced,
     setInitialInvestment,
@@ -30,7 +30,6 @@ export default function InputsCard() {
     setPeriodUnit,
     setCapitalization,
     setInflationRate,
-    setAdminFeeRate,
     setTargetValue,
     setShowAdvanced,
   } = useCalculatorStore();
@@ -78,40 +77,65 @@ export default function InputsCard() {
           />
         </div>
 
-        {/* Contribution */}
-        <div>
-          <label
-            htmlFor="contribution"
-            className="block text-sm font-medium text-slate-200 mb-2"
-          >
-            Aporte Recorrente (R$)
-          </label>
-          <div className="flex gap-2">
-            <input
-              id="contribution"
-              type="text"
-              value={formatNumberWithSeparators(contribution)}
-              onChange={(e) => {
-                const parsedValue = parseNumberWithSeparators(e.target.value);
-                setContribution(parsedValue || 0);
-              }}
-              placeholder="0"
-              className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
-              aria-label="Valor do aporte recorrente"
-            />
+        {/* Contribution and Capitalization */}
+        <div className="flex flex-col md:flex-row gap-4">
+          {/* Contribution */}
+          <div className="flex-1">
+            <label
+              htmlFor="contribution"
+              className="block text-sm font-medium text-slate-200 mb-2"
+            >
+              Aporte Recorrente (R$)
+            </label>
+            <div className="flex gap-2">
+              <input
+                id="contribution"
+                type="text"
+                value={formatNumberWithSeparators(contribution)}
+                onChange={(e) => {
+                  const parsedValue = parseNumberWithSeparators(e.target.value);
+                  setContribution(parsedValue || 0);
+                }}
+                placeholder="0"
+                className="flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
+                aria-label="Valor do aporte recorrente"
+              />
+              <select
+                value={contributionFrequency}
+                onChange={(e) =>
+                  setContributionFrequency(
+                    e.target.value as "monthly" | "yearly" | "none"
+                  )
+                }
+                className="px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
+                aria-label="Frequência do aporte"
+              >
+                <option value="monthly">Mensal</option>
+                <option value="yearly">Anual</option>
+                <option value="none">Nenhum</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Capitalization */}
+          <div className="flex-1">
+            <label
+              htmlFor="capitalization"
+              className="block text-sm font-medium text-slate-200 mb-2"
+            >
+              Capitalização
+            </label>
             <select
-              value={contributionFrequency}
+              id="capitalization"
+              value={capitalization}
               onChange={(e) =>
-                setContributionFrequency(
-                  e.target.value as "monthly" | "yearly" | "none"
-                )
+                setCapitalization(e.target.value as "monthly" | "yearly")
               }
-              className="px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
-              aria-label="Frequência do aporte"
+              className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
+              aria-label="Frequência de capitalização"
             >
               <option value="monthly">Mensal</option>
               <option value="yearly">Anual</option>
-              <option value="none">Nenhum</option>
             </select>
           </div>
         </div>
@@ -180,8 +204,9 @@ export default function InputsCard() {
                 id="period"
                 type="number"
                 min="1"
-                value={period}
-                onChange={(e) => setPeriod(Number(e.target.value))}
+                value={period || ''}
+                onChange={(e) => setPeriod(Number(e.target.value) || 0)}
+                placeholder="0"
                 className="w-24 sm:w-28 md:flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                 aria-label="Duração do período"
               />
@@ -198,28 +223,6 @@ export default function InputsCard() {
               </select>
             </div>
           </div>
-        </div>
-
-        {/* Capitalization */}
-        <div>
-          <label
-            htmlFor="capitalization"
-            className="block text-sm font-medium text-slate-200 mb-2"
-          >
-            Capitalização
-          </label>
-          <select
-            id="capitalization"
-            value={capitalization}
-            onChange={(e) =>
-              setCapitalization(e.target.value as "monthly" | "yearly")
-            }
-            className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
-            aria-label="Frequência de capitalização"
-          >
-            <option value="monthly">Mensal</option>
-            <option value="yearly">Anual</option>
-          </select>
         </div>
 
         {/* Advanced Options Toggle */}
@@ -261,31 +264,17 @@ export default function InputsCard() {
                   type="number"
                   min="0"
                   step="0.1"
-                  value={inflationRate}
-                  onChange={(e) => setInflationRate(Number(e.target.value))}
+                  value={inflationRate || ''}
+                  onChange={(e) => setInflationRate(Number(e.target.value) || 0)}
+                  placeholder="0"
                   className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                   aria-label="Taxa de inflação anual"
                 />
               </div>
 
-              {/* Admin Fee Rate */}
+              {/* Variable Contributions */}
               <div>
-                <label
-                  htmlFor="admin-fee"
-                  className="block text-sm font-medium text-slate-200 mb-2"
-                >
-                  Taxa de Administração Anual (%)
-                </label>
-                <input
-                  id="admin-fee"
-                  type="number"
-                  min="0"
-                  step="0.1"
-                  value={adminFeeRate}
-                  onChange={(e) => setAdminFeeRate(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
-                  aria-label="Taxa de administração anual"
-                />
+                <VariableContributions />
               </div>
 
               {/* Target Value */}

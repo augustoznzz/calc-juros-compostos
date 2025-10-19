@@ -9,15 +9,6 @@ import EvolutionTable from "@/components/EvolutionTable";
 import { RefreshCw } from "lucide-react";
 
 // Dynamically import charts to avoid SSR issues
-const GrowthChart = dynamic(() => import("@/components/GrowthChart"), {
-  ssr: false,
-  loading: () => (
-    <div className="bg-white rounded-2xl shadow-lg p-6 h-[500px] flex items-center justify-center">
-      <p className="text-gray-500">Carregando gráfico...</p>
-    </div>
-  ),
-});
-
 const BreakdownCharts = dynamic(
   () => import("@/components/BreakdownCharts"),
   {
@@ -86,9 +77,6 @@ export default function Home() {
               <ResultsCard />
             </div>
           </div>
-
-          {/* Growth Chart */}
-          <GrowthChart />
 
           {/* Breakdown Charts */}
           <BreakdownCharts />
