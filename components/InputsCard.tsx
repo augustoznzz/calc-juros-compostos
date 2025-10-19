@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useCalculatorStore } from "@/lib/store";
 import { monthlyToAnnual, annualToMonthly } from "@/lib/finance";
-import { formatNumberWithSeparators, parseNumberWithSeparators } from "@/lib/format";
+import { formatNumberWithSeparators, parseNumberWithSeparators, formatPercentage, parsePercentage } from "@/lib/format";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -33,6 +34,14 @@ export default function InputsCard() {
     setTargetValue,
     setShowAdvanced,
   } = useCalculatorStore();
+
+  // Local state for interest rate string to allow comma input
+  const [interestRateString, setInterestRateString] = useState(formatPercentage(interestRate));
+
+  // Update local state when store value changes
+  useEffect(() => {
+    setInterestRateString(formatPercentage(interestRate));
+  }, [interestRate]);
 
   // Calculate equivalent rate
   const equivalentRate =
@@ -120,11 +129,23 @@ export default function InputsCard() {
             <div className="flex gap-2">
               <input
                 id="interest-rate"
-                type="number"
-                min="0"
-                step="0.01"
-                value={interestRate}
-                onChange={(e) => setInterestRate(Number(e.target.value))}
+                type="text"
+                value={interestRateString}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setInterestRateString(value);
+                  
+                  // Only update store if value is valid
+                  if (value === "" || value === ",") {
+                    setInterestRate(0);
+                  } else {
+                    const parsedValue = parsePercentage(value);
+                    if (parsedValue !== null) {
+                      setInterestRate(parsedValue);
+                    }
+                  }
+                }}
+                placeholder="0"
                 className="w-28 sm:w-32 md:flex-1 px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none placeholder-slate-400"
                 aria-label="Taxa de juros"
               />

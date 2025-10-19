@@ -145,3 +145,38 @@ export function parseNumberWithSeparators(value: string): number | null {
   return null;
 }
 
+/**
+ * Format percentage value with comma as decimal separator (no thousand separators)
+ */
+export function formatPercentage(value: number | null): string {
+  if (value === null || value === undefined || isNaN(value)) {
+    return "";
+  }
+  
+  // Convert to string and replace dot with comma for decimal separator
+  return value.toString().replace(".", ",");
+}
+
+/**
+ * Parse percentage string with comma as decimal separator
+ */
+export function parsePercentage(value: string): number | null {
+  if (!value || value.trim() === "") {
+    return null;
+  }
+  
+  // Allow only digits, comma and dot, but replace comma with dot for parsing
+  const cleaned = value.replace(/[^\d,.-]/g, "");
+  
+  // If it's just a comma or starts with comma, return 0
+  if (cleaned === "," || cleaned.startsWith(",")) {
+    return 0;
+  }
+  
+  // Replace comma with dot for parsing
+  const numberString = cleaned.replace(",", ".");
+  const number = parseFloat(numberString);
+  
+  return isNaN(number) ? null : number;
+}
+
