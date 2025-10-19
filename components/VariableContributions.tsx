@@ -20,19 +20,30 @@ export default function VariableContributions() {
     periodType: "months" as "months" | "years",
   });
 
-  const handleAdd = () => {
+  const handleSave = () => {
     if (formData.amount && formData.startPeriod && formData.endPeriod) {
       const amount = formData.amount;
       const startPeriod = Number(formData.startPeriod);
       const endPeriod = Number(formData.endPeriod);
 
       if (amount > 0 && startPeriod > 0 && endPeriod >= startPeriod) {
-        addVariableContribution({
-          amount,
-          startPeriod,
-          endPeriod,
-          periodType: formData.periodType,
-        });
+        if (editingId) {
+          // Update existing contribution
+          updateVariableContribution(editingId, {
+            amount,
+            startPeriod,
+            endPeriod,
+            periodType: formData.periodType,
+          });
+        } else {
+          // Add new contribution
+          addVariableContribution({
+            amount,
+            startPeriod,
+            endPeriod,
+            periodType: formData.periodType,
+          });
+        }
         
         // Reset form
         setFormData({
@@ -42,8 +53,20 @@ export default function VariableContributions() {
           periodType: "months",
         });
         setIsAdding(false);
+        setEditingId(null);
       }
     }
+  };
+
+  const handleEdit = (contribution: any) => {
+    setFormData({
+      amount: contribution.amount,
+      startPeriod: contribution.startPeriod.toString(),
+      endPeriod: contribution.endPeriod.toString(),
+      periodType: contribution.periodType,
+    });
+    setEditingId(contribution.id);
+    setIsAdding(true);
   };
 
   const handleCancel = () => {
@@ -63,13 +86,15 @@ export default function VariableContributions() {
         <h3 className="text-sm font-medium text-slate-200">
           Aportes Personalizados
         </h3>
-        <button
-          onClick={() => setIsAdding(!isAdding)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          Adicionar
-        </button>
+        {!isAdding && (
+          <button
+            onClick={() => setIsAdding(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Adicionar
+          </button>
+        )}
       </div>
 
       {/* Add/Edit Form */}
@@ -83,6 +108,11 @@ export default function VariableContributions() {
             className="overflow-hidden"
           >
             <div className="bg-slate-600 rounded-lg p-4 space-y-3">
+              {/* Title */}
+              <h4 className="text-sm font-semibold text-white border-b border-slate-500 pb-2">
+                {editingId ? "Editar Aporte" : "Novo Aporte"}
+              </h4>
+              
               {/* Amount */}
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1">
@@ -155,11 +185,11 @@ export default function VariableContributions() {
                   Cancelar
                 </button>
                 <button
-                  onClick={handleAdd}
+                  onClick={handleSave}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-sm bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
                 >
                   <Check className="w-3.5 h-3.5" />
-                  Salvar
+                  {editingId ? "Atualizar" : "Salvar"}
                 </button>
               </div>
             </div>
@@ -188,13 +218,22 @@ export default function VariableContributions() {
                     {contribution.periodType === "months" ? "Meses" : "Anos"} {contribution.startPeriod} a {contribution.endPeriod}
                   </p>
                 </div>
-                <button
-                  onClick={() => removeVariableContribution(contribution.id)}
-                  className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors"
-                  aria-label="Remover aporte"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => handleEdit(contribution)}
+                    className="p-2 text-blue-400 hover:text-blue-300 hover:bg-blue-900/20 rounded-lg transition-colors"
+                    aria-label="Editar aporte"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => removeVariableContribution(contribution.id)}
+                    className="p-2 text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-colors"
+                    aria-label="Remover aporte"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
