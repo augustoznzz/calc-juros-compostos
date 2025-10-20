@@ -5,6 +5,7 @@ import { useCalculatorStore } from "@/lib/store";
 import { formatNumberWithSeparators, parseNumberWithSeparators } from "@/lib/format";
 import { Plus, Trash2, Edit2, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import type { VariableContribution } from "@/lib/finance";
 
 export default function VariableContributions() {
   const { variableContributions, addVariableContribution, removeVariableContribution, updateVariableContribution } = useCalculatorStore();
@@ -58,7 +59,7 @@ export default function VariableContributions() {
     }
   };
 
-  const handleEdit = (contribution: any) => {
+  const handleEdit = (contribution: VariableContribution) => {
     setFormData({
       amount: contribution.amount,
       startPeriod: contribution.startPeriod.toString(),
