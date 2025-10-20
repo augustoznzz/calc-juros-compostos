@@ -260,13 +260,13 @@ export function calculateCompoundInterest(
     // Total contribution for this period
     const periodContribution = contributionPerPeriod + variableContribution;
     
+    // Calculate interest on current balance (ordinary annuity: contribution at end)
+    const interest = balance * effectiveRate;
+    balance += interest;
+
     // Add contribution at the end of period
     balance += periodContribution;
     totalInvested += periodContribution;
-    
-    // Calculate interest
-    const interest = balance * effectiveRate;
-    balance += interest;
 
     periods.push({
       period: i,
@@ -360,12 +360,12 @@ export function calculateTimeToGoal(
       // Total contribution for this period
       const periodContribution = monthlyContribution + variableContribution;
       
-      // Add contribution at the end of period
-      balance += periodContribution;
-      
-      // Calculate interest
+      // Calculate interest first (ordinary annuity)
       const interest = balance * monthlyRate;
       balance += interest;
+
+      // Then add contribution at end of period
+      balance += periodContribution;
     }
 
     if (Math.abs(balance - targetValue) < 0.01) {

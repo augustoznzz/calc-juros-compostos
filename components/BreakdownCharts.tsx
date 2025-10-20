@@ -83,31 +83,36 @@ export default function BreakdownCharts() {
     } else {
       // Group by year (every 12 periods for monthly capitalization)
       const periodsPerYear = capitalization === "monthly" ? 12 : 1;
-      const yearlyData = [];
-      
+      const yearlyData = [] as Array<{ period: number; periodLabel: string; balance: number; invested: number }>;
+
       for (let i = 0; i < periods.length; i += periodsPerYear) {
         const period = periods[i];
         if (period) {
+          const yearIndex = Math.floor(period.period / periodsPerYear) + 1;
           yearlyData.push({
-            period: Math.floor(period.period / periodsPerYear) + 1,
-            periodLabel: `Ano ${Math.floor(period.period / periodsPerYear) + 1}`,
+            period: yearIndex,
+            periodLabel: `Ano ${yearIndex}`,
             balance: period.finalBalance,
             invested: period.totalInvested,
           });
         }
       }
-      
-      // Add last period if not already included
+
+      // Add last period only if it represents a new (partial) year not yet included
       const lastPeriod = periods[periods.length - 1];
-      if (lastPeriod && (periods.length - 1) % periodsPerYear !== 0) {
-        yearlyData.push({
-          period: Math.ceil(lastPeriod.period / periodsPerYear),
-          periodLabel: `Ano ${Math.ceil(lastPeriod.period / periodsPerYear)}`,
-          balance: lastPeriod.finalBalance,
-          invested: lastPeriod.totalInvested,
-        });
+      if (lastPeriod) {
+        const lastYear = Math.ceil(lastPeriod.period / periodsPerYear);
+        const lastIncludedYear = yearlyData.length > 0 ? yearlyData[yearlyData.length - 1].period : 0;
+        if (lastYear !== lastIncludedYear) {
+          yearlyData.push({
+            period: lastYear,
+            periodLabel: `Ano ${lastYear}`,
+            balance: lastPeriod.finalBalance,
+            invested: lastPeriod.totalInvested,
+          });
+        }
       }
-      
+
       return yearlyData;
     }
   }, [results, capitalization, patrimonioView]);

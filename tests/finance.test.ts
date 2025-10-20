@@ -161,6 +161,26 @@ describe("Finance Library", () => {
         expect(p.finalBalance).toBeGreaterThan(p.initialBalance);
       });
     });
+
+    it("should match example: 10k initial, 1k monthly, 5% a.m., 5 years", () => {
+      const inputs: CalculationInputs = {
+        initialInvestment: 10000,
+        contribution: 1000,
+        contributionFrequency: "monthly",
+        interestRate: 5, // 5% a.m.
+        interestBase: "monthly",
+        period: 5,
+        periodUnit: "years",
+        capitalization: "monthly",
+        inflationRate: 0,
+        adminFeeRate: 0,
+      };
+
+      const results = calculateCompoundInterest(inputs);
+
+      // Expected approximately R$ 540.375,58 per user report
+      expect(results.futureValueNominal).toBeCloseTo(540375.58, 0);
+    });
   });
 
   describe("Time to Goal Calculations", () => {
