@@ -159,25 +159,48 @@ function getVariableContribution(
   let totalContribution = 0;
 
   for (const vc of variableContributions) {
-    // Convert period to months for comparison
+    // Convert current calculation period to months for comparison
     const periodInMonths = capitalization === "monthly" ? periodNumber : periodNumber * 12;
-    const startInMonths = vc.periodType === "months" ? vc.startPeriod : vc.startPeriod * 12;
-    const endInMonths = vc.periodType === "months" ? vc.endPeriod : vc.endPeriod * 12;
 
-    // Check if current period is within range
+    // Normalize contribution window to months
+    // If the contribution is defined in years, map:
+    //   Year 1 -> months 1..12, Year 2 -> months 13..24, etc.
+    // So: startYear -> (startYear - 1) * 12 + 1, endYear -> endYear * 12
+    const startInMonths = vc.periodType === "months"
+      ? vc.startPeriod
+      : (vc.startPeriod - 1) * 12 + 1;
+    const endInMonths = vc.periodType === "months"
+      ? vc.endPeriod
+      : vc.endPeriod * 12;
+
+    // Check if current period is within configured range
     if (periodInMonths >= startInMonths && periodInMonths <= endInMonths) {
-      // Convert contribution amount to match capitalization frequency
-      // vc.periodType is the frequency of the contribution amount
-      // capitalization is the calculation frequency
-      if (vc.periodType === "months" && capitalization === "yearly") {
-        // Monthly contribution but yearly capitalization
-        totalContribution += vc.amount * 12;
-      } else if (vc.periodType === "years" && capitalization === "monthly") {
-        // Yearly contribution but monthly capitalization
-        totalContribution += vc.amount / 12;
-      } else {
-        // Both match
-        totalContribution += vc.amount;
+      if (vc.periodType === "months") {
+        if (capitalization === "monthly") {
+          // Exact monthly contribution at each month within the range
+          totalContribution += vc.amount;
+        } else {
+          // capitalization === 'yearly': sum the exact months within this year window
+          const yearStart = (periodNumber - 1) * 12 + 1;
+          const yearEnd = periodNumber * 12;
+          const overlapStart = Math.max(startInMonths, yearStart);
+          const overlapEnd = Math.min(endInMonths, yearEnd);
+          const monthsOverlap = Math.max(0, overlapEnd - overlapStart + 1);
+          totalContribution += vc.amount * monthsOverlap;
+        }
+      } else { // vc.periodType === 'years'
+        if (capitalization === "monthly") {
+          // Apply yearly contribution once per year at the first month of the year within range (1, 13, 25, ...)
+          if ((periodInMonths - 1) % 12 === 0) {
+            totalContribution += vc.amount;
+          }
+        } else {
+          // capitalization === 'yearly': add once per year when this year is within the configured years range
+          const yearStart = (periodNumber - 1) * 12 + 1;
+          if (yearStart >= startInMonths && yearStart <= endInMonths) {
+            totalContribution += vc.amount;
+          }
+        }
       }
     }
   }
@@ -297,6 +320,7 @@ export function calculateTimeToGoal(
     interestRate,
     interestBase,
     adminFeeRate,
+    variableContributions,
   } = inputs;
 
   // Get effective interest rate per month (always calculate monthly for precision)
@@ -326,11 +350,22 @@ export function calculateTimeToGoal(
   while (low <= high) {
     const mid = Math.floor((low + high) / 2);
     
-    // Calculate FV for this number of months
+    // Calculate FV for this number of months using the same logic as calculateCompoundInterest
     let balance = initialInvestment;
-    for (let i = 0; i < mid; i++) {
-      balance += monthlyContribution;
-      balance *= 1 + monthlyRate;
+    
+    for (let i = 1; i <= mid; i++) {
+      // Get variable contribution for this period (monthly calculation)
+      const variableContribution = getVariableContribution(i, "monthly", variableContributions);
+      
+      // Total contribution for this period
+      const periodContribution = monthlyContribution + variableContribution;
+      
+      // Add contribution at the end of period
+      balance += periodContribution;
+      
+      // Calculate interest
+      const interest = balance * monthlyRate;
+      balance += interest;
     }
 
     if (Math.abs(balance - targetValue) < 0.01) {
