@@ -302,7 +302,13 @@ export function calculateCompoundInterest(
   const futureValueReal = futureValueNominal / inflationFactor;
 
   const totalInterest = futureValueNominal - totalInvested;
-  const netReturn = totalInvested > 0 ? (totalInterest / totalInvested) * 100 : 0;
+  
+  // Calculate annualized return rate
+  // Formula: ((FV / Total Invested)^(1/years) - 1) * 100
+  const totalYears = totalMonths / 12;
+  const netReturn = totalInvested > 0 && totalYears > 0
+    ? (Math.pow(futureValueNominal / totalInvested, 1 / totalYears) - 1) * 100
+    : 0;
   
   // Get last month's interest (last period's interest)
   const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;
