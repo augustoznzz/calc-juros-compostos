@@ -303,12 +303,22 @@ export function calculateCompoundInterest(
 
   const totalInterest = futureValueNominal - totalInvested;
   
-  // Calculate annualized return rate
-  // Formula: ((FV / Total Invested)^(1/years) - 1) * 100
-  const totalYears = totalMonths / 12;
-  const netReturn = totalInvested > 0 && totalYears > 0
-    ? (Math.pow(futureValueNominal / totalInvested, 1 / totalYears) - 1) * 100
-    : 0;
+  // Calculate annualized return rate (effective annual rate after admin fees)
+  // This is the interest rate the investment is earning per year
+  let netReturn = 0;
+  if (interestBase === "yearly") {
+    // Already annual, just subtract admin fee
+    netReturn = Math.max(interestRate - adminFeeRate, 0);
+  } else {
+    // Monthly rate - convert to effective annual rate
+    const effectiveRateMonthly = getEffectiveRate(
+      interestRate,
+      interestBase,
+      "monthly" as CapitalizationFrequency,
+      adminFeeRate
+    );
+    netReturn = (Math.pow(1 + effectiveRateMonthly, 12) - 1) * 100;
+  }
   
   // Get last month's interest (last period's interest)
   const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;
