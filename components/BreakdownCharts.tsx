@@ -31,7 +31,7 @@ export default function BreakdownCharts() {
 
     return [
       {
-        name: "Principal + Aportes",
+        name: "Total Investido",
         value: results.totalInvested,
         color: COLORS[0],
       },
