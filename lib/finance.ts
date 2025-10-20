@@ -240,7 +240,7 @@ export function calculateCompoundInterest(
   } = inputs;
 
   // Keep the original capitalization - don't auto-adjust
-  let effectiveCapitalization = capitalization;
+  const effectiveCapitalization = capitalization;
 
   // Get effective interest rate per period
   const effectiveRate = getEffectiveRate(
