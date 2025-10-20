@@ -17,7 +17,6 @@ export default function InputsCard() {
     interestBase,
     period,
     periodUnit,
-    capitalization,
     inflationRate,
     targetValue,
     showAdvanced,
@@ -28,7 +27,6 @@ export default function InputsCard() {
     setInterestBase,
     setPeriod,
     setPeriodUnit,
-    setCapitalization,
     setInflationRate,
     setTargetValue,
     setShowAdvanced,
@@ -77,7 +75,7 @@ export default function InputsCard() {
           />
         </div>
 
-        {/* Contribution and Capitalization */}
+        {/* Contribution */}
         <div className="flex flex-col md:flex-row gap-4">
           {/* Contribution */}
           <div className="flex-1">
@@ -115,28 +113,6 @@ export default function InputsCard() {
                 <option value="none">Nenhum</option>
               </select>
             </div>
-          </div>
-
-          {/* Capitalization */}
-          <div className="flex-1">
-            <label
-              htmlFor="capitalization"
-              className="block text-sm font-medium text-slate-200 mb-2"
-            >
-              Capitalização
-            </label>
-            <select
-              id="capitalization"
-              value={capitalization}
-              onChange={(e) =>
-                setCapitalization(e.target.value as "monthly" | "yearly")
-              }
-              className="w-full px-3 py-2 bg-slate-600 border border-slate-500 text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all focus-visible:outline-none"
-              aria-label="Frequência de capitalização"
-            >
-              <option value="monthly">Mensal</option>
-              <option value="yearly">Anual</option>
-            </select>
           </div>
         </div>
 
