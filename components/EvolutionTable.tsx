@@ -8,7 +8,8 @@ import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 const ROWS_PER_PAGE = 12;
 
 export default function EvolutionTable() {
-  const { results, capitalization } = useCalculatorStore();
+  const { results } = useCalculatorStore();
+  const effectiveCapitalization = results?.effectiveCapitalization || "monthly";
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = useMemo(() => {
@@ -35,7 +36,7 @@ export default function EvolutionTable() {
     ];
 
     const rows = results.periods.map((p) => [
-      formatPeriodLabel(p.period, capitalization),
+      formatPeriodLabel(p.period, effectiveCapitalization),
       p.initialBalance.toFixed(2),
       p.contribution.toFixed(2),
       p.interest.toFixed(2),
@@ -117,7 +118,7 @@ export default function EvolutionTable() {
                 }`}
               >
                 <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-white">
-                  {formatPeriodLabel(period.period, capitalization)}
+                  {formatPeriodLabel(period.period, effectiveCapitalization)}
                 </td>
                 <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
                   {formatCurrency(period.initialBalance)}

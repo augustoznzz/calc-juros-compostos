@@ -125,6 +125,19 @@ export default function ResultsCard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {secondRowKpis.map((kpi, index) => {
             const Icon = kpi.icon;
+            // Calculate average return per period for Rentabilidade card
+            const isRentabilidadeCard = kpi.label === "Rentabilidade";
+            let averageReturnPerPeriod = 0;
+            if (isRentabilidadeCard && results.periods.length > 0) {
+              const totalReturnRate = results.periods.reduce((sum, period) => {
+                const returnRate = period.initialBalance > 0 
+                  ? (period.interest / period.initialBalance) * 100 
+                  : 0;
+                return sum + returnRate;
+              }, 0);
+              averageReturnPerPeriod = totalReturnRate / results.periods.length;
+            }
+            
             return (
               <motion.div
                 key={kpi.label}
@@ -146,9 +159,16 @@ export default function ResultsCard() {
                     <Icon className={`w-5 h-5 md:w-6 md:h-6 ${kpi.color}`} />
                   </div>
                 </div>
-                <p className={`text-xl font-bold ${kpi.color} break-words`}>
-                  {kpi.value}
-                </p>
+                <div>
+                  <p className={`text-xl font-bold ${kpi.color} break-words`}>
+                    {kpi.value}
+                  </p>
+                  {isRentabilidadeCard && (
+                    <p className="text-slate-400 mt-1" style={{ fontSize: '14px' }}>
+                      Média: {formatPercent(averageReturnPerPeriod)}
+                    </p>
+                  )}
+                </div>
               </motion.div>
             );
           })}

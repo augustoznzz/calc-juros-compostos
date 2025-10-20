@@ -47,6 +47,7 @@ export interface CalculationResults {
   netReturn: number;
   lastMonthInterest: number;
   periods: PeriodData[];
+  effectiveCapitalization: CapitalizationFrequency;
   timeToGoal?: {
     months: number;
     years: number;
@@ -77,6 +78,11 @@ function getEffectiveRate(
   capitalization: CapitalizationFrequency,
   adminFeeRate: number
 ): number {
+  // If base and capitalization are the same, use the rate directly
+  if (interestBase === capitalization) {
+    return Math.max(interestRate / 100 - adminFeeRate / 100, 0);
+  }
+
   // First, convert to annual effective rate
   let annualEffectiveRate: number;
 
@@ -190,8 +196,13 @@ function getVariableContribution(
         }
       } else { // vc.periodType === 'years'
         if (capitalization === "monthly") {
-          // Apply yearly contribution once per year at the first month of the year within range (1, 13, 25, ...)
-          if ((periodInMonths - 1) % 12 === 0) {
+          // Apply yearly contribution monthly within the year range
+          // Convert year range to months: year 1 = months 1-12, year 2 = months 13-24, etc.
+          const yearStartInMonths = (vc.startPeriod - 1) * 12 + 1;
+          const yearEndInMonths = vc.endPeriod * 12;
+          
+          // Check if current period is within the year range
+          if (periodInMonths >= yearStartInMonths && periodInMonths <= yearEndInMonths) {
             totalContribution += vc.amount;
           }
         } else {
@@ -228,11 +239,14 @@ export function calculateCompoundInterest(
     variableContributions,
   } = inputs;
 
+  // Keep the original capitalization - don't auto-adjust
+  let effectiveCapitalization = capitalization;
+
   // Get effective interest rate per period
   const effectiveRate = getEffectiveRate(
     interestRate,
     interestBase,
-    capitalization,
+    effectiveCapitalization,
     adminFeeRate
   );
 
@@ -240,11 +254,11 @@ export function calculateCompoundInterest(
   const contributionPerPeriod = getContributionPerPeriod(
     contribution,
     contributionFrequency,
-    capitalization
+    effectiveCapitalization
   );
 
   // Get total number of periods
-  const totalPeriods = getTotalPeriods(period, periodUnit, capitalization);
+  const totalPeriods = getTotalPeriods(period, periodUnit, effectiveCapitalization);
 
   // Calculate period by period
   const periods: PeriodData[] = [];
@@ -255,16 +269,16 @@ export function calculateCompoundInterest(
     const initialBalance = balance;
     
     // Get variable contribution for this period
-    const variableContribution = getVariableContribution(i, capitalization, variableContributions);
+    const variableContribution = getVariableContribution(i, effectiveCapitalization, variableContributions);
     
     // Total contribution for this period
     const periodContribution = contributionPerPeriod + variableContribution;
     
-    // Calculate interest on current balance (ordinary annuity: contribution at end)
+    // Calculate interest on current balance (before adding contribution)
     const interest = balance * effectiveRate;
     balance += interest;
 
-    // Add contribution at the end of period
+    // Add contribution at the end of period (ordinary annuity)
     balance += periodContribution;
     totalInvested += periodContribution;
 
@@ -301,6 +315,7 @@ export function calculateCompoundInterest(
     netReturn,
     lastMonthInterest,
     periods,
+    effectiveCapitalization,
   };
 
   return results;
