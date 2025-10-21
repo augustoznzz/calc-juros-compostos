@@ -178,9 +178,9 @@ export default function BreakdownCharts() {
   }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      const futureValue = hasInflation ? results.futureValueReal : results.futureValueNominal;
+      const total = compositionData.reduce((sum, item) => sum + item.value, 0);
       const percentage = (
-        (data.value / futureValue) *
+        (data.value / total) *
         100
       ).toFixed(1);
       return (
@@ -278,11 +278,11 @@ export default function BreakdownCharts() {
                 cy="50%"
                 labelLine={false}
                 label={(entry) => {
-                  const futureValue = hasInflation ? results.futureValueReal : results.futureValueNominal;
+                  const total = compositionData.reduce((sum, item) => sum + item.value, 0);
                   const percentage = (
-                    (entry.value / futureValue) *
+                    (entry.value / total) *
                     100
-                  ).toFixed(0);
+                  ).toFixed(1);
                   return `${entry.name}: ${percentage}%`;
                 }}
                 outerRadius={100}
