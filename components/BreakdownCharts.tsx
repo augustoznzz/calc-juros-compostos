@@ -178,11 +178,12 @@ export default function BreakdownCharts() {
   }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      const total = compositionData.reduce((sum, item) => sum + item.value, 0);
-      const percentage = (
-        (data.value / total) *
-        100
-      ).toFixed(1);
+      const totalInvested = results.totalInvested;
+      // For "Juros", show percentage relative to total invested (rentabilidade)
+      // For "Total Investido", show as 100%
+      const percentage = data.name === "Juros"
+        ? ((data.value / totalInvested) * 100).toFixed(1)
+        : "100.0";
       return (
         <div className="bg-slate-600 border border-slate-500 rounded-lg shadow-lg p-3">
           <p className="font-semibold text-white">{data.name}</p>
