@@ -309,27 +309,12 @@ export function calculateCompoundInterest(
   // Calculate real total interest (inflation adjusted)
   const totalInterestReal = futureValueReal - totalInvested;
   
-  // Calculate annualized return rate (effective annual rate after admin fees)
-  // This is the interest rate the investment is earning per year
-  let netReturn = 0;
-  if (interestBase === "yearly") {
-    // Already annual, just subtract admin fee
-    netReturn = Math.max(interestRate - adminFeeRate, 0);
-  } else {
-    // Monthly rate - convert to effective annual rate
-    const effectiveRateMonthly = getEffectiveRate(
-      interestRate,
-      interestBase,
-      "monthly" as CapitalizationFrequency,
-      adminFeeRate
-    );
-    netReturn = (Math.pow(1 + effectiveRateMonthly, 12) - 1) * 100;
-  }
+  // Calculate net return as percentage of total invested over the period
+  // This represents the actual return on investment in the specified period
+  const netReturn = totalInvested > 0 ? (totalInterest / totalInvested) * 100 : 0;
   
   // Calculate real return (adjusted for inflation)
-  const netReturnReal = inflationRate > 0 
-    ? ((1 + netReturn / 100) / (1 + inflationRate / 100) - 1) * 100
-    : netReturn;
+  const netReturnReal = totalInvested > 0 ? (totalInterestReal / totalInvested) * 100 : 0;
   
   // Get last month's interest (last period's interest)
   const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;

@@ -8,14 +8,28 @@ import { Download, ChevronLeft, ChevronRight } from "lucide-react";
 const ROWS_PER_PAGE = 12;
 
 export default function EvolutionTable() {
-  const { results } = useCalculatorStore();
+  const { results, inflationRate } = useCalculatorStore();
   const effectiveCapitalization = results?.effectiveCapitalization || "monthly";
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Calculate if we should show inflation-adjusted values
+  const hasInflation = inflationRate > 0;
+  const monthlyInflationRate = hasInflation 
+    ? Math.pow(1 + inflationRate / 100, 1 / 12) - 1 
+    : 0;
 
   const totalPages = useMemo(() => {
     if (!results?.periods) return 0;
     return Math.ceil(results.periods.length / ROWS_PER_PAGE);
   }, [results]);
+
+  // Function to adjust value for inflation at a specific period
+  const adjustForInflation = (value: number, period: number) => {
+    if (!hasInflation) return value;
+    const periodsInMonths = effectiveCapitalization === "monthly" ? period : period * 12;
+    const inflationFactor = Math.pow(1 + monthlyInflationRate, periodsInMonths);
+    return value / inflationFactor;
+  };
 
   const paginatedData = useMemo(() => {
     if (!results?.periods) return [];
