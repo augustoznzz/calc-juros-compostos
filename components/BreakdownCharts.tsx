@@ -23,8 +23,22 @@ import { formatCurrency, formatPeriodLabel } from "@/lib/format";
 const COLORS = ["#a855f7", "#60a5fa", "#34d399", "#fbbf24"];
 
 export default function BreakdownCharts() {
-  const { results, capitalization } = useCalculatorStore();
+  const { results, capitalization, inflationRate } = useCalculatorStore();
   const [patrimonioView, setPatrimonioView] = useState<"monthly" | "yearly">("monthly");
+
+  // Calculate if we should show inflation-adjusted values
+  const hasInflation = inflationRate > 0;
+  const monthlyInflationRate = hasInflation 
+    ? Math.pow(1 + inflationRate / 100, 1 / 12) - 1 
+    : 0;
+
+  // Function to adjust value for inflation at a specific period
+  const adjustForInflation = (value: number, period: number) => {
+    if (!hasInflation) return value;
+    const periodsInMonths = capitalization === "monthly" ? period : period * 12;
+    const inflationFactor = Math.pow(1 + monthlyInflationRate, periodsInMonths);
+    return value / inflationFactor;
+  };
 
   const compositionData = useMemo(() => {
     if (!results) return [];
@@ -37,11 +51,11 @@ export default function BreakdownCharts() {
       },
       {
         name: "Juros",
-        value: results.totalInterest,
+        value: hasInflation ? results.totalInterestReal : results.totalInterest,
         color: COLORS[1],
       },
     ];
-  }, [results]);
+  }, [results, hasInflation]);
 
   const interestByPeriodData = useMemo(() => {
     if (!results || !results.periods) return [];
@@ -50,8 +64,11 @@ export default function BreakdownCharts() {
     const periods = results.periods;
     const step = Math.max(1, Math.floor(periods.length / 20));
 
-    // Calculate average interest
-    const totalInterest = periods.reduce((sum, p) => sum + p.interest, 0);
+    // Calculate average interest (adjusted for inflation if applicable)
+    const totalInterest = periods.reduce((sum, p) => {
+      const adjustedInterest = adjustForInflation(p.interest, p.period);
+      return sum + adjustedInterest;
+    }, 0);
     const averageInterest = totalInterest / periods.length;
 
     return periods
@@ -59,10 +76,10 @@ export default function BreakdownCharts() {
       .map((p) => ({
         period: p.period,
         periodLabel: formatPeriodLabel(p.period, capitalization),
-        interest: p.interest,
+        interest: adjustForInflation(p.interest, p.period),
         averageInterest: averageInterest,
       }));
-  }, [results, capitalization]);
+  }, [results, capitalization, hasInflation, monthlyInflationRate]);
 
   const patrimonioEvolutionData = useMemo(() => {
     if (!results || !results.periods || results.periods.length === 0) return [];
@@ -77,7 +94,7 @@ export default function BreakdownCharts() {
         .map((p) => ({
           period: p.period,
           periodLabel: formatPeriodLabel(p.period, capitalization),
-          balance: p.finalBalance,
+          balance: adjustForInflation(p.finalBalance, p.period),
           invested: p.totalInvested,
         }));
     } else {
@@ -92,7 +109,7 @@ export default function BreakdownCharts() {
           yearlyData.push({
             period: yearIndex,
             periodLabel: `Ano ${yearIndex}`,
-            balance: period.finalBalance,
+            balance: adjustForInflation(period.finalBalance, period.period),
             invested: period.totalInvested,
           });
         }
@@ -107,7 +124,7 @@ export default function BreakdownCharts() {
           yearlyData.push({
             period: lastYear,
             periodLabel: `Ano ${lastYear}`,
-            balance: lastPeriod.finalBalance,
+            balance: adjustForInflation(lastPeriod.finalBalance, lastPeriod.period),
             invested: lastPeriod.totalInvested,
           });
         }
@@ -115,7 +132,7 @@ export default function BreakdownCharts() {
 
       return yearlyData;
     }
-  }, [results, capitalization, patrimonioView]);
+  }, [results, capitalization, patrimonioView, hasInflation, monthlyInflationRate]);
 
   if (!results) {
     return (
@@ -161,8 +178,9 @@ export default function BreakdownCharts() {
   }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const futureValue = hasInflation ? results.futureValueReal : results.futureValueNominal;
       const percentage = (
-        (data.value / results.futureValueNominal) *
+        (data.value / futureValue) *
         100
       ).toFixed(1);
       return (
@@ -244,9 +262,14 @@ export default function BreakdownCharts() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Composition Pie Chart */}
         <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-4">
-            Composição Final
-          </h2>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-white mb-4">
+              Composição Final
+            </h2>
+            {hasInflation && (
+              <p className="text-xs text-slate-400 -mt-3 mb-4">Valores descontados da inflação</p>
+            )}
+          </div>
           <ResponsiveContainer width="100%" height={350}>
             <PieChart>
               <Pie
@@ -255,8 +278,9 @@ export default function BreakdownCharts() {
                 cy="50%"
                 labelLine={false}
                 label={(entry) => {
+                  const futureValue = hasInflation ? results.futureValueReal : results.futureValueNominal;
                   const percentage = (
-                    (entry.value / results.futureValueNominal) *
+                    (entry.value / futureValue) *
                     100
                   ).toFixed(0);
                   return `${entry.name}: ${percentage}%`;
@@ -277,9 +301,14 @@ export default function BreakdownCharts() {
 
         {/* Interest by Period Bar Chart */}
         <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-4">
-            Juros por Período
-          </h2>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-white mb-4">
+              Juros por Período
+            </h2>
+            {hasInflation && (
+              <p className="text-xs text-slate-400 -mt-3 mb-4">Valores descontados da inflação</p>
+            )}
+          </div>
           <ResponsiveContainer width="100%" height={350}>
             <ComposedChart data={interestByPeriodData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
@@ -312,9 +341,14 @@ export default function BreakdownCharts() {
       {/* Second Row: Patrimônio Evolution Chart - Full Width */}
       <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg md:text-xl font-bold text-white">
-            Evolução do Patrimônio
-          </h2>
+          <div>
+            <h2 className="text-lg md:text-xl font-bold text-white">
+              Evolução do Patrimônio
+            </h2>
+            {hasInflation && (
+              <p className="text-xs text-slate-400 mt-1">Valores descontados da inflação</p>
+            )}
+          </div>
           <div className="flex gap-2">
             <button
               onClick={() => setPatrimonioView("monthly")}
