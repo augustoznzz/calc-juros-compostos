@@ -12,7 +12,7 @@ import {
 import { motion } from "framer-motion";
 
 export default function ResultsCard() {
-  const { results } = useCalculatorStore();
+  const { results, inflationRate } = useCalculatorStore();
 
   if (!results) {
     return (
@@ -24,6 +24,12 @@ export default function ResultsCard() {
       </div>
     );
   }
+
+  // Use inflation-adjusted values when inflation rate is set
+  const hasInflation = inflationRate > 0;
+  const totalInterestDisplay = hasInflation ? results.totalInterestReal : results.totalInterest;
+  const lastMonthInterestDisplay = hasInflation ? results.lastMonthInterestReal : results.lastMonthInterest;
+  const netReturnDisplay = hasInflation ? results.netReturnReal : results.netReturn;
 
   const kpis = [
     {
@@ -50,24 +56,27 @@ export default function ResultsCard() {
     },
     {
       label: "Juros Totais",
-      value: formatCurrency(results.totalInterest),
+      value: formatCurrency(totalInterestDisplay),
       icon: TrendingUp,
       color: "text-orange-400",
       bgColor: "bg-orange-900/30",
+      subtitle: hasInflation ? "Descontada inflação" : undefined,
     },
     {
       label: "Juros do Último Mês",
-      value: formatCurrency(results.lastMonthInterest),
+      value: formatCurrency(lastMonthInterestDisplay),
       icon: TrendingUp,
       color: "text-cyan-400",
       bgColor: "bg-cyan-900/30",
+      subtitle: hasInflation ? "Descontada inflação" : undefined,
     },
     {
       label: "Rentabilidade",
-      value: formatPercent(results.netReturn),
+      value: formatPercent(netReturnDisplay),
       icon: Target,
       color: "text-indigo-400",
       bgColor: "bg-indigo-900/30",
+      subtitle: hasInflation ? "Descontada inflação" : undefined,
     },
   ];
 

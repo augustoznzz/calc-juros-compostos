@@ -44,8 +44,11 @@ export interface CalculationResults {
   futureValueReal: number;
   totalInvested: number;
   totalInterest: number;
+  totalInterestReal: number;
   netReturn: number;
+  netReturnReal: number;
   lastMonthInterest: number;
+  lastMonthInterestReal: number;
   periods: PeriodData[];
   effectiveCapitalization: CapitalizationFrequency;
   timeToGoal?: {
@@ -303,6 +306,9 @@ export function calculateCompoundInterest(
 
   const totalInterest = futureValueNominal - totalInvested;
   
+  // Calculate real total interest (inflation adjusted)
+  const totalInterestReal = futureValueReal - totalInvested;
+  
   // Calculate annualized return rate (effective annual rate after admin fees)
   // This is the interest rate the investment is earning per year
   let netReturn = 0;
@@ -320,16 +326,29 @@ export function calculateCompoundInterest(
     netReturn = (Math.pow(1 + effectiveRateMonthly, 12) - 1) * 100;
   }
   
+  // Calculate real return (adjusted for inflation)
+  const netReturnReal = inflationRate > 0 
+    ? ((1 + netReturn / 100) / (1 + inflationRate / 100) - 1) * 100
+    : netReturn;
+  
   // Get last month's interest (last period's interest)
   const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;
+  
+  // Calculate real last month interest (inflation adjusted)
+  // Adjust for inflation accumulated up to the last period
+  const inflationFactorLastPeriod = Math.pow(1 + monthlyInflationRate, totalMonths);
+  const lastMonthInterestReal = lastMonthInterest / inflationFactorLastPeriod;
 
   const results: CalculationResults = {
     futureValueNominal,
     futureValueReal,
     totalInvested,
     totalInterest,
+    totalInterestReal,
     netReturn,
+    netReturnReal,
     lastMonthInterest,
+    lastMonthInterestReal,
     periods,
     effectiveCapitalization,
   };
