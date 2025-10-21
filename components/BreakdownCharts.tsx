@@ -278,11 +278,12 @@ export default function BreakdownCharts() {
                 cy="50%"
                 labelLine={false}
                 label={(entry) => {
-                  const total = compositionData.reduce((sum, item) => sum + item.value, 0);
-                  const percentage = (
-                    (entry.value / total) *
-                    100
-                  ).toFixed(1);
+                  // Calculate percentage relative to total invested for "Juros"
+                  // and show as part of 100% for "Total Investido"
+                  const totalInvested = results.totalInvested;
+                  const percentage = entry.name === "Juros"
+                    ? ((entry.value / totalInvested) * 100).toFixed(1)
+                    : "100";
                   return `${entry.name}: ${percentage}%`;
                 }}
                 outerRadius={100}
