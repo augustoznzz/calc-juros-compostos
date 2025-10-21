@@ -178,10 +178,11 @@ export default function BreakdownCharts() {
   }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
-      // For "Juros", show the annual equivalent return rate
+      // For "Juros", show percentage relative to total invested (rentabilidade total do período)
       // For "Total Investido", show as 100%
+      const totalInvested = results.totalInvested;
       const percentage = data.name === "Juros"
-        ? (hasInflation ? results.netReturnReal : results.netReturn).toFixed(1)
+        ? ((data.value / totalInvested) * 100).toFixed(1)
         : "100.0";
       return (
         <div className="bg-slate-600 border border-slate-500 rounded-lg shadow-lg p-3">
@@ -278,14 +279,13 @@ export default function BreakdownCharts() {
                 cy="50%"
                 labelLine={false}
                 label={(entry) => {
-                  // For "Juros", show the annual equivalent return rate
+                  // For "Juros", show percentage relative to total invested (rentabilidade total do período)
                   // For "Total Investido", show as 100%
-                  if (entry.name === "Juros") {
-                    const netReturn = hasInflation ? results.netReturnReal : results.netReturn;
-                    return `${entry.name}: ${netReturn.toFixed(1)}%`;
-                  } else {
-                    return `${entry.name}: 100%`;
-                  }
+                  const totalInvested = results.totalInvested;
+                  const percentage = entry.name === "Juros"
+                    ? ((entry.value / totalInvested) * 100).toFixed(1)
+                    : "100";
+                  return `${entry.name}: ${percentage}%`;
                 }}
                 outerRadius={100}
                 fill="#8884d8"
