@@ -2,24 +2,15 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
-  // Force cache invalidation for production builds
-  generateBuildId: async () => {
-    return `build-${Date.now()}`;
+  // Generate static export for Netlify
+  output: 'export',
+  trailingSlash: true,
+  // Disable image optimization for static export
+  images: {
+    unoptimized: true,
   },
-  // Ensure proper caching headers
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate',
-          },
-        ],
-      },
-    ];
-  },
+  // Ensure proper asset paths
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
 };
 
 export default nextConfig;

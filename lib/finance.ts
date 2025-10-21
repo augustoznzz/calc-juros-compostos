@@ -316,6 +316,7 @@ export function calculateCompoundInterest(
   // Calculate real return (adjusted for inflation)
   const netReturnReal = totalInvested > 0 ? (totalInterestReal / totalInvested) * 100 : 0;
   
+  
   // Get last month's interest (last period's interest)
   const lastMonthInterest = periods.length > 0 ? periods[periods.length - 1].interest : 0;
   
