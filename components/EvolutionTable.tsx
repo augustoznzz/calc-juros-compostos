@@ -41,21 +41,36 @@ export default function EvolutionTable() {
   const exportCSV = () => {
     if (!results?.periods) return;
 
-    const headers = [
-      "Período",
-      "Saldo Inicial",
-      "Aporte",
-      "Juros",
-      "Saldo Final",
-    ];
+    const headers = hasInflation
+      ? [
+          "Período",
+          "Saldo Inicial (Real)",
+          "Aporte (Real)",
+          "Juros (Real)",
+          "Saldo Final (Real)",
+        ]
+      : [
+          "Período",
+          "Saldo Inicial",
+          "Aporte",
+          "Juros",
+          "Saldo Final",
+        ];
 
-    const rows = results.periods.map((p) => [
-      formatPeriodLabel(p.period, effectiveCapitalization),
-      p.initialBalance.toFixed(2),
-      p.contribution.toFixed(2),
-      p.interest.toFixed(2),
-      p.finalBalance.toFixed(2),
-    ]);
+    const rows = results.periods.map((p) => {
+      const initialBalance = adjustForInflation(p.initialBalance, p.period);
+      const contribution = adjustForInflation(p.contribution, p.period);
+      const interest = adjustForInflation(p.interest, p.period);
+      const finalBalance = adjustForInflation(p.finalBalance, p.period);
+      
+      return [
+        formatPeriodLabel(p.period, effectiveCapitalization),
+        initialBalance.toFixed(2),
+        contribution.toFixed(2),
+        interest.toFixed(2),
+        finalBalance.toFixed(2),
+      ];
+    });
 
     const csvContent = [
       headers.join(","),
@@ -90,7 +105,12 @@ export default function EvolutionTable() {
   return (
     <div className="bg-slate-700 rounded-2xl shadow-lg p-4 md:p-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-4">
-        <h2 className="text-lg md:text-xl font-bold text-white">Tabela de Evolução</h2>
+        <div>
+          <h2 className="text-lg md:text-xl font-bold text-white">Tabela de Evolução</h2>
+          {hasInflation && (
+            <p className="text-xs text-slate-400 mt-1">Valores descontados da inflação</p>
+          )}
+        </div>
         <button
           onClick={exportCSV}
           className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500 text-sm"
@@ -124,30 +144,37 @@ export default function EvolutionTable() {
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((period, index) => (
-              <tr
-                key={period.period}
-                className={`border-b border-slate-600 hover:bg-slate-600 transition-colors ${
-                  index % 2 === 0 ? "bg-slate-700" : "bg-slate-800"
-                }`}
-              >
-                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-white">
-                  {formatPeriodLabel(period.period, effectiveCapitalization)}
-                </td>
-                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
-                  {formatCurrency(period.initialBalance)}
-                </td>
-                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
-                  {formatCurrency(period.contribution)}
-                </td>
-                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-green-400 text-right font-medium">
-                  {formatCurrency(period.interest)}
-                </td>
-                <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-white text-right font-semibold">
-                  {formatCurrency(period.finalBalance)}
-                </td>
-              </tr>
-            ))}
+            {paginatedData.map((period, index) => {
+              const initialBalance = adjustForInflation(period.initialBalance, period.period);
+              const contribution = adjustForInflation(period.contribution, period.period);
+              const interest = adjustForInflation(period.interest, period.period);
+              const finalBalance = adjustForInflation(period.finalBalance, period.period);
+              
+              return (
+                <tr
+                  key={period.period}
+                  className={`border-b border-slate-600 hover:bg-slate-600 transition-colors ${
+                    index % 2 === 0 ? "bg-slate-700" : "bg-slate-800"
+                  }`}
+                >
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-white">
+                    {formatPeriodLabel(period.period, effectiveCapitalization)}
+                  </td>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
+                    {formatCurrency(initialBalance)}
+                  </td>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-300 text-right">
+                    {formatCurrency(contribution)}
+                  </td>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-green-400 text-right font-medium">
+                    {formatCurrency(interest)}
+                  </td>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-xs md:text-sm text-white text-right font-semibold">
+                    {formatCurrency(finalBalance)}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
