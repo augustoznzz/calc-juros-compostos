@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import {
   PieChart,
   Pie,
@@ -33,12 +33,12 @@ export default function BreakdownCharts() {
     : 0;
 
   // Function to adjust value for inflation at a specific period
-  const adjustForInflation = (value: number, period: number) => {
+  const adjustForInflation = useCallback((value: number, period: number) => {
     if (!hasInflation) return value;
     const periodsInMonths = capitalization === "monthly" ? period : period * 12;
     const inflationFactor = Math.pow(1 + monthlyInflationRate, periodsInMonths);
     return value / inflationFactor;
-  };
+  }, [hasInflation, capitalization, monthlyInflationRate]);
 
   const compositionData = useMemo(() => {
     if (!results) return [];
@@ -79,7 +79,7 @@ export default function BreakdownCharts() {
         interest: adjustForInflation(p.interest, p.period),
         averageInterest: averageInterest,
       }));
-  }, [results, capitalization, hasInflation, monthlyInflationRate]);
+  }, [results, capitalization, adjustForInflation]);
 
   const patrimonioEvolutionData = useMemo(() => {
     if (!results || !results.periods || results.periods.length === 0) return [];
@@ -132,7 +132,7 @@ export default function BreakdownCharts() {
 
       return yearlyData;
     }
-  }, [results, capitalization, patrimonioView, hasInflation, monthlyInflationRate]);
+  }, [results, capitalization, patrimonioView, adjustForInflation]);
 
   if (!results) {
     return (

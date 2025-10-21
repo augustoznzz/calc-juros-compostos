@@ -325,6 +325,7 @@ export function calculateCompoundInterest(
     const realEffectiveRate = effectiveRate - monthlyInflationRate;
     const annualEquivalentReal = Math.pow(1 + realEffectiveRate, 12) - 1;
     netReturnReal = Math.max(annualEquivalentReal * 100, 0);
+    
   } else {
     // For yearly capitalization, use the effective rate directly
     netReturn = effectiveRate * 100;
@@ -332,6 +333,7 @@ export function calculateCompoundInterest(
     // For real return, adjust for inflation
     const realEffectiveRate = effectiveRate - inflationRate / 100;
     netReturnReal = Math.max(realEffectiveRate * 100, 0);
+    
   }
   
   // Get last month's interest (last period's interest)
